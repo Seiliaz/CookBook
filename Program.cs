@@ -95,10 +95,4 @@ public class RecipesConsoleUserInteraction : IRecipesUserInteraction
     }
 }
 
-public class Recipe
-{
-    public Recipe(List<string> ingredients)
-    {
-        //
-    }
-}
+
