@@ -86,12 +86,6 @@ public class CookieRecipesApp
     }
 }
 
-public interface IRecipesRepository
-{
-    List<Recipe> Read(string filePath);
-    void Write(string filePath, List<Recipe> recipes);
-}
-
 public class RecipesRepository : IRecipesRepository
 {
     private readonly IStringsRepository _stringsRepository;
@@ -256,35 +250,6 @@ public interface IStringsRepository
     void Write(string filePath, List<string> strings);
 }
 
-public abstract class StringsRepository : IStringsRepository
-{
-    public List<string> Read(string filePath)
-    {
-        if (File.Exists(filePath))
-        {
-            var fileContents = File.ReadAllText(filePath);
-            return TextToStrings(fileContents);
-        }
-        return new List<string>();
-    }
-
-    public void Write(string filePath, List<string> strings)
-    {
-        File.WriteAllText(filePath, StringsToText(strings));
-    }
-
-    protected abstract List<string> TextToStrings(string fileContents);
-    protected abstract string StringsToText(List<string> strings);
-}
-
-public class StringsTextualRepository : StringsRepository
-{
-    private static readonly string Seperator = Environment.NewLine;
-    protected override List<string> TextToStrings(string fileContents)
-        => fileContents.Split(Seperator).ToList();
-    protected override string StringsToText(List<string> strings)
-        => string.Join(Seperator, strings);
-}
 
 public class StringsJsonRepository : StringsRepository
 {
