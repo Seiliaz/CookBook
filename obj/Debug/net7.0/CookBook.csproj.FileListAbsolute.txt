@@ -1,0 +1,14 @@
+F:\C#\CookBook\bin\Debug\net7.0\CookBook.exe
+F:\C#\CookBook\bin\Debug\net7.0\CookBook.deps.json
+F:\C#\CookBook\bin\Debug\net7.0\CookBook.runtimeconfig.json
+F:\C#\CookBook\bin\Debug\net7.0\CookBook.dll
+F:\C#\CookBook\bin\Debug\net7.0\CookBook.pdb
+F:\C#\CookBook\obj\Debug\net7.0\CookBook.GeneratedMSBuildEditorConfig.editorconfig
+F:\C#\CookBook\obj\Debug\net7.0\CookBook.AssemblyInfoInputs.cache
+F:\C#\CookBook\obj\Debug\net7.0\CookBook.AssemblyInfo.cs
+F:\C#\CookBook\obj\Debug\net7.0\CookBook.csproj.CoreCompileInputs.cache
+F:\C#\CookBook\obj\Debug\net7.0\CookBook.dll
+F:\C#\CookBook\obj\Debug\net7.0\refint\CookBook.dll
+F:\C#\CookBook\obj\Debug\net7.0\CookBook.pdb
+F:\C#\CookBook\obj\Debug\net7.0\CookBook.genruntimeconfig.cache
+F:\C#\CookBook\obj\Debug\net7.0\ref\CookBook.dll

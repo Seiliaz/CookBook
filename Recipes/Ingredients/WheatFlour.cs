@@ -4,6 +4,5 @@ namespace CookBook.Recipes.Ingredients
     {
         public override int Id => 1;
         public override string Name => "Wheat Flour";
-
     }
 }
