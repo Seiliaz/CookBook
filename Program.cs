@@ -1,9 +1,14 @@
 ﻿using CookBook.Recipes;
 using CookBook.Recipes.Ingredients;
 
+var ingredientsRegister = new IngredientsRegister();
+
 var cookiesRecipesApp = new CookieRecipesApp(
-    new RecipesRepository(),
-    new RecipesConsoleUserInteraction(new IngredientsRegister())
+    new RecipesRepository(
+        new StringsTextualRepository(),
+        ingredientsRegister),
+    new RecipesConsoleUserInteraction(
+        ingredientsRegister)
 );
 cookiesRecipesApp.Run("recipes.txt");
 
@@ -23,7 +28,7 @@ public class CookieRecipesApp
 
     public void Run(string filePath)
     {
-        var allRecipes = _recipesRepository.Read("filePath");
+        var allRecipes = _recipesRepository.Read(filePath);
         _recipesUserInteraction.PrintExistingRecipes(allRecipes);
         _recipesUserInteraction.PromptToCreateRecipe();
         var ingredients = _recipesUserInteraction.ReadIngredientsFromUser();
@@ -31,7 +36,7 @@ public class CookieRecipesApp
         {
             var recipe = new Recipe(ingredients);
             allRecipes.Add(recipe);
-            // _recipesRepository.Write("filePath", allRecipes);
+            _recipesRepository.Write(filePath, allRecipes);
             _recipesUserInteraction.ShowMessage("Recipe added:");
             var test = recipe.ToString();
             _recipesUserInteraction.ShowMessage(test);
@@ -50,31 +55,59 @@ public class CookieRecipesApp
 public interface IRecipesRepository
 {
     List<Recipe> Read(string filePath);
-    void Write(string filePath, string text);
+    void Write(string filePath, List<Recipe> recipes);
 }
 
 public class RecipesRepository : IRecipesRepository
 {
-    public List<Recipe> Read(string filePath)
+    private readonly IStringsRepository _stringsRepository;
+    private readonly IIngredientRegister _ingredientsRegister;
+    private const string Seperator = ",";
+
+    public RecipesRepository(
+        IStringsRepository stringsRepository,
+        IIngredientRegister ingredientsRegister
+        )
     {
-        return new List<Recipe>
-        {
-            new Recipe(new List<Ingredient> {
-                new WheatFlour(),
-                new Butter(),
-                new Sugar(),
-            }),
-            new Recipe(new List<Ingredient> {
-                new CocoaPowder(),
-                new SpeltFlour(),
-                new Cinnamon(),
-            }),
-        };
+        _stringsRepository = stringsRepository;
+        _ingredientsRegister = ingredientsRegister;
     }
 
-    public void Write(string filePath, string text)
+    public List<Recipe> Read(string filePath)
     {
-        //
+        List<string> recipesFromFile = _stringsRepository.Read(filePath);
+        var recipes = new List<Recipe>();
+        foreach (string recipeFromFile in recipesFromFile)
+        {
+            var recipe = RecipeFromString(recipeFromFile);
+            recipes.Add(recipe);
+        }
+        return recipes;
+    }
+
+    public void Write(string filePath, List<Recipe> recipes)
+    {
+        var recipesAsStrings = new List<string>();
+        foreach (Recipe recipe in recipes)
+        {
+            var allIds = new List<int>();
+            foreach (Ingredient ingredient in recipe.Ingredients)
+                allIds.Add(ingredient.Id);
+            recipesAsStrings.Add(string.Join(Seperator, allIds));
+        }
+        _stringsRepository.Write(filePath, recipesAsStrings);
+    }
+
+    private Recipe RecipeFromString(string recipeFromFile)
+    {
+        var textualIds = recipeFromFile.Split(Seperator);
+        var ingredients = new List<Ingredient>();
+        foreach (var textualId in textualIds)
+        {
+            var id = int.Parse(textualId);
+            ingredients.Add(_ingredientsRegister.GetById(id));
+        }
+        return new Recipe(ingredients);
     }
 }
 
@@ -87,7 +120,13 @@ public interface IRecipesUserInteraction
     void Exit();
 }
 
-public class IngredientsRegister
+public interface IIngredientRegister
+{
+    IEnumerable<Ingredient> All { get; }
+    Ingredient GetById(int id);
+}
+
+public class IngredientsRegister : IIngredientRegister
 {
     public IEnumerable<Ingredient> All { get; } = new List<Ingredient>
     {
@@ -112,9 +151,9 @@ public class IngredientsRegister
 
 public class RecipesConsoleUserInteraction : IRecipesUserInteraction
 {
-    private readonly IngredientsRegister _ingredientsRegister;
+    private readonly IIngredientRegister _ingredientsRegister;
 
-    public RecipesConsoleUserInteraction(IngredientsRegister ingredientsRegister)
+    public RecipesConsoleUserInteraction(IIngredientRegister ingredientsRegister)
     {
         _ingredientsRegister = ingredientsRegister;
     }
@@ -174,5 +213,27 @@ public class RecipesConsoleUserInteraction : IRecipesUserInteraction
     {
         Console.WriteLine("Press any key to close.");
         Console.ReadKey();
+    }
+}
+
+public interface IStringsRepository
+{
+    List<string> Read(string filePath);
+    void Write(string filePath, List<string> strings);
+}
+
+public class StringsTextualRepository : IStringsRepository
+{
+    private static readonly string Seperator = Environment.NewLine;
+
+    public List<string> Read(string filePath)
+    {
+        var fileContents = File.ReadAllText(filePath);
+        return fileContents.Split(Seperator).ToList();
+    }
+
+    public void Write(string filePath, List<string> strings)
+    {
+        File.WriteAllText(filePath, string.Join(Seperator, strings));
     }
 }
